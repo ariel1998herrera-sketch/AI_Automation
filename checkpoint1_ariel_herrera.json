@@ -1,0 +1,179 @@
+{
+  "name": "Pre-Entrega 1",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.5,
+      "position": [
+        -96,
+        0
+      ],
+      "id": "0723aff7-335d-4ae9-8ae7-b92ce45154a2",
+      "name": "Telegram Trigger",
+      "webhookId": "f093ba44-4ea7-486b-9dbb-5ba9cae59989",
+      "credentials": {
+        "telegramApi": {
+          "id": "DYBGlQd5F1uKgWli",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message.text }}",
+        "options": {
+          "systemMessage": "=Eres un asistente de reclamos para una empresa de pasteleria. Siempre usa {{ $json.message.from.first_name }} de la persona para saludar o dirigirte\nTu funcion de es atender los reclamos de los clientes y registrar el incindente.\nSi el cliente solicita un reembolso o descuento tenes que devolver un mensaje que diga \n\"Transfiriendo a un agente humano\" {{ $json.message.from.first_name }}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        96,
+        0
+      ],
+      "id": "8cf9db81-79be-41d0-a110-caea8c9abb87",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-safeguard-20b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        96,
+        208
+      ],
+      "id": "efe69af9-b1c6-4f0e-b2c9-4cc05ac9fbc9",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "tsJ22ttfGqdwxMow",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.from.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        464,
+        -16
+      ],
+      "id": "3fedf0dd-277a-4354-89da-b4c85ed33406",
+      "name": "Send a text message",
+      "webhookId": "00f943fc-e887-46d3-9a20-5a4a79c166c1",
+      "credentials": {
+        "telegramApi": {
+          "id": "DYBGlQd5F1uKgWli",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1LQuuMrSR66KNwh0ZzHEBHYrp9UZKZqY2qDhr67APBWA",
+          "mode": "list",
+          "cachedResultName": "Registro reclamos-",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1LQuuMrSR66KNwh0ZzHEBHYrp9UZKZqY2qDhr67APBWA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Hoja 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1LQuuMrSR66KNwh0ZzHEBHYrp9UZKZqY2qDhr67APBWA/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        464,
+        160
+      ],
+      "id": "08772248-fad2-4ff8-9d7d-fea9e59914ab",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "WKHeqNfwlI8A5uBt",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "6939132b-b896-48ef-86d6-3f2bb17d65f9",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "727009c18fa04aba9dd75afe6ba08a2dc5757b13248ac6392295cc0158740f9f"
+  },
+  "nodeGroups": [],
+  "id": "2DC3JOMTErsrOgGH",
+  "tags": []
+}
